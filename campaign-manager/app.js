@@ -85,7 +85,7 @@ ddoc.views.salesPeople = {
 
 ddoc.filters.forLocation = function(doc, req) {
     var _ = require("views/lib/underscore");
-    require("views/lib/underscore_extended");
+    require("views/lib/underscore_extended"); 
     
 /*
     function contains(array, item){return (array.indexOf(item) != -1);};
@@ -130,7 +130,7 @@ ddoc.filters.forLocation = function(doc, req) {
             log("selected key obj");
             log(selected_obj_in_query);
             log("is Equal?");
-            log(_.isEqual(loc,selected_obj_in_query))
+            log(_.isEqual(loc,selected_obj_in_query));
             if(_.isEqual(loc,selected_obj_in_query)){
                 log("match!");
                 return true;
