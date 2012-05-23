@@ -53,7 +53,7 @@ function topLevelEntity(reportData){
     else {return {id:undefined,type:undefined};}
 };
 function topLevelEntityInfo(reportData){
-    return entity_type_from_id(reportData,topLevelEntity(reportData).id);
+    return entity_type_from_id(reportData,topLevelEntity.id);
 };
 var getParentsInfo = _.memoize(
     function getParentsInfo(reportData){
@@ -105,7 +105,7 @@ var reportDataToArray = _.memoize(
 	//todo: this may be the expand function that i wrote tests for in underscore_extended
 	function combineWithSubpart(field){
 	    return function(o){
-		if (o && o[field]){
+		if (o[field]){
 		    if(_.isObj(o[field])){
 			var fields = o[field];
 		    }
@@ -113,38 +113,47 @@ var reportDataToArray = _.memoize(
 			var fields = _.flatten(o[field]);
 		    }
 		    var o_without_field = _.removeKeys(o,field);
-		    return _.mapCombine(fields,o_without_field);
+		    var expandedCombinedFields = _.mapCombine(fields,o_without_field);
+		    return expandedCombinedFields;
 		}
 		return o;
 	    };
 	}
-	var flattened_entity = _.chain(reportData)
-	    .pick('company','group','store')
+	return _.chain(reportData)
+	    .selectKeys('company','group','store')
             .prewalk_r(function(o){
-			  if (o && o.hierarchy){
+			  if (o.hierarchy){
 			      var groups = o.hierarchy.groups;
 			      var o_without_field = _.removeKeys(o,'hierarchy');
 			      var expandedCombinedFields = _.mapCombine(groups,o_without_field);
 			      return _.combine(o_without_field,{groups : expandedCombinedFields});
-			  }
+			  } 
 			  return o;
 		      })
 	    .prewalk_r(combineWithSubpart('terminals'))
             .prewalk_r(combineWithSubpart('stores'))
             .prewalk_r(combineWithSubpart('groups'))
             .prewalk_r(combineWithSubpart('company'))
+<<<<<<< HEAD
+	    .prewalk_r(combineWithSubpart('group'))
+	    .prewalk_r(combineWithSubpart('store'))
 	    .value();
-	if(_.isArray(flattened_entity)){return flattened_entity;}
-	else{return _.flatten([_.either(flattened_entity.store,
-				   flattened_entity.group,
-				   flattened_entity.company)]);}
+	//if(_.isArray(compressed_entities)){return _.mapCombine(compressed_entities,_.pick(reportData,'companyName','company_id','groupName','group_id','storeName','store_id'))}
+	//else if(compressed_entities.group){return _.mapCombine(compressed_entities.group,_.pick(reportData,'companyName','company_id','groupName','group_id','storeName','store_id'))}
+	//else if(compressed_entities.store){return _.mapCombine(compressed_entities.store,_.pick(reportData,'companyName','company_id','groupName','group_id','storeName','store_id'))}
+=======
+            .prewalk_r(combineWithSubpart('group')) // by yunbo
+            .prewalk_r(combineWithSubpart('store')) // by yunbo
+	    .value();
+>>>>>>> 5159f982ce3725a94776a9d8bdb07634548f129d
+
     },
     reportDataHash
 );
 function entity_type_from_id(reportData,id){
     return _.chain(reportDataToArray(reportData))
 	.find(function(entity){
-		  return _.find(entity,function(val){return val === id})
+		  return _.find(entity,function(val){return val === id;});
 	      })
 	.filter$(function(val){
 		     return val === id;
@@ -156,41 +165,63 @@ function entity_type_from_id(reportData,id){
 		    'terminal_id','terminal')
 	.keys()
 	.first()
-	.value()
+	.value();
 }
 function _find_entity_from_id(reportData,id){
     return _.chain(reportDataToArray(reportData))
 	.find(function(entity){
-		  return _.find(entity,function(val){return val === id})
+		  return _.find(entity,function(val){return val === id;});
 	      })
+<<<<<<< HEAD
 	.renameKeys('number','storeNumber')
 	.value()
 }
 var extract_entity_info={
     company:function(entity_data){
-	return _.chain(entity_data)
-	    .pick('company_id','companyName','companyCode') //FIXME: wtf is company code, also there is no company_id when this executes at store/group level login
-	    .renameKeys('companyCode','companyName')
-	    .value();
+	return _.selectKeys(entity_data,
+		       'company_id',
+		       'companyName')
     },
     group:function(entity_data){
 	return _.combine(this.company(entity_data),
-		    _.pick(entity_data,
+		    _.selectKeys(entity_data,
 				 'group_id',
 				 'groupName'))
     },
     store:function(entity_data){
 	return _.combine(this.group(entity_data),
-		    _.pick(entity_data,
+		    _.selectKeys(entity_data,
 				 'store_id',
 				 'storeName',
 				 'storeNumber'))
     },
     terminal:function(entity_data){
 	return _.combine(this.store(entity_data),
-		    _.pick(entity_data,
+		    _.selectKeys(entity_data,
 				 'terminal_id',
 				 'terminal_label'))
+=======
+	.value();
+    var entity_type = entity_type_from_id(reportData,id);
+    if (entity_type === 'company'){
+	return _.selectKeys(bloated_entity, 'company_id',
+		       'companyName');
+    }
+    else if(entity_type === 'group'){
+	return _.selectKeys(bloated_entity, 'company_id',
+		       'companyName',
+		       'group_id',
+		       'groupName');
+    }
+    else if(entity_type === 'store'){
+	return _.selectKeys(bloated_entity, 'company_id',
+		       'companyName',
+		       'group_id',
+		       'groupName',
+		       'store_id',
+		       'storeName',
+		       'storeNumber');
+>>>>>>> 5159f982ce3725a94776a9d8bdb07634548f129d
     }
 }
 var entity_from_id = multimethod()
@@ -280,7 +311,6 @@ function groupsFromStoreSets(stores,groups,reportData){
     return groupsToSave;
 }
 // report page store drop downbox helper funtion
-//FIXME: we are getting ride of the drop down, remove this
 function updateStoreDropdown(isNotShowAll) {
     var groups = ReportData.company.hierarchy.groups;
     var dropdownGroup = $("#groupsdown");
@@ -575,6 +605,17 @@ function entityIDs_from_id(reportData,id,entity_type){
 }
 function storeIDs_from_id(reportData,id){
     return entityIDs_from_id(reportData,id,'store');
+    //get a list of stores from the parent id
+/*    return _.chain(reportDataToArray(reportData))
+	.filter(function(store){
+		    return _.find(store,function(val){return val === id;});
+		})
+	.pluck('store_id')
+	.compact()
+	.unique()
+<<<<<<< HEAD
+	.value()
+*/
 }
 function entities_info_from_id(reportData,id,entity_type){
     return _.map(entityIDs_from_id(reportData,id,entity_type),
@@ -582,6 +623,8 @@ function entities_info_from_id(reportData,id,entity_type){
 }
 function stores_info_from_id(reportData,id){
     return entities_info_from_id(reportData,id,'store');
+   /* return _.map(storeIDs_from_id(reportData,id),
+	    function(id){ return entity_from_id(ReportData,id)});*/
 }
 
 function child_type_of(parent_type){
@@ -611,4 +654,7 @@ function get_id_from_name(reportData,name){
 		      return obj;
 		  }, reportData)
     }
+=======
+	.value();
+>>>>>>> 5159f982ce3725a94776a9d8bdb07634548f129d
 }

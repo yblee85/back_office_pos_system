@@ -1,18 +1,10 @@
 var menuReportsElectronicPaymentsRouter =
     new (Backbone.Router.extend(
 	     {routes: {
-	     	  "menuReports/companyReportElectronicPayments":"menuReportsCompanyPayments",
-	     	  "menuReports/groupReportElectronicPayments":"menuReportsGroupPayments",
-		  "menuReports/storeReportElectronicPayments":"menuReportsStorePayments"
+	     	  "reports/electronic_payments":"menuReportsCompanyPayments"
 	      },
 	      menuReportsCompanyPayments:function() {
 		  console.log("menuReportsCompanyPayments  ");
-	      },
-	      menuReportsGroupPayments:function() {
-		  console.log("menuReportsGroupPayments  ");
-	      },
-	      menuReportsStorePayments:function() {
-		  console.log("menuReportsStorePayments  ");
 	      }
 	     }));
 
@@ -22,75 +14,18 @@ var menuReportsElectronicPaymentsView =
 	     var view = this;
 	     view.el = $("#main");
 
-	     _.bindAll(view,
-		       'renderMenuReportsCompanyPayments',
-		       'renderMenuReportsGroupPayments',
-		       'renderMenuReportsStorePayments');
-	     menuReportsElectronicPaymentsRouter
-		 .bind('route:menuReportsCompanyPayments',
-		       function(){
-			   console.log("menuReportsView, route:menuReportsCompanyPayments");
-			   view.renderMenuReportsCompanyPayments();
-		       });
+	     _.bindAll(view,'renderMenuReportsCompanyPayments');
+	     menuReportsElectronicPaymentsRouter.bind(
+		 'route:menuReportsCompanyPayments',
+		 function(){
+		     console.log("menuReportsView, route:menuReportsCompanyPayments");
+		     view.renderMenuReportsCompanyPayments();
+		 });
 
-	     menuReportsElectronicPaymentsRouter
-		 .bind('route:menuReportsGroupPayments',
-		       function(){
-			   console.log("menuReportsView, route:menuReportsGroupPayments");
-			   view.renderMenuReportsGroupPayments();
-		       });
-
-	     menuReportsElectronicPaymentsRouter
-		 .bind('route:menuReportsStorePayments',
-		       function(){
-			   console.log("menuReportsView, route:menuReportsStorePayments");
-			   view.renderMenuReportsStorePayments();
-		       });
 	 },
 	 renderMenuReportsCompanyPayments: function() {
 
-	     var html = ich.electronicPaymentsReports_TMP({startPage:"companyReport",
-	     						 breadCrumb:breadCrumb(ReportData.company.companyName)});
-	     $(this.el).html(html);
-
-	     resetDatePicker();
-
-             resetDropdownBox(ReportData, true, true);
-
-	     var btn = $('#generalgobtn')
-		 .button()
-		 .click(function(){
-			    renderElectronicPaymentsTable();
-			});
-
-	     console.log("rendered general report");
-	 },
-	 renderMenuReportsGroupPayments: function() {
-
-	     var html = ich.electronicPaymentsReports_TMP({startPage:"groupReport",
-	     						 breadCrumb:breadCrumb(ReportData.companyName,
-									       ReportData.group.groupName)});
-	     $(this.el).html(html);
-
-	     resetDatePicker();
-
-             resetDropdownBox(ReportData, true, true);
-
-	     var btn = $('#generalgobtn')
-		 .button()
-		 .click(function(){
-			    renderElectronicPaymentsTable();
-			});
-
-	     console.log("rendered general report");
-	 },
-	 renderMenuReportsStorePayments: function() {
-
-	     var html = ich.electronicPaymentsReports_TMP({startPage:"storeReport",
-	     						 breadCrumb:breadCrumb(ReportData.companyName,
-									       ReportData.groupName,
-									       ReportData.store.storeName,
-									       ReportData.store.number)});
+	     var html = ich.electronicPaymentsReports_TMP(autoBreadCrumb());
 	     $(this.el).html(html);
 
 	     resetDatePicker();
@@ -186,7 +121,7 @@ function renderElectronicPaymentsTable() {
 		     .value();
 	     }
 
-	     var html = ich.electronicPaymentstable_TMP({items:data,totals:formatted_totals});
+	     var html = ich.electronicPaymentstable_TMP({items:_.sortBy(data,function(datum){return datum.date}).reverse(),totals:formatted_totals});
 	     $("#reporttable").html(html);
 
 	     _.each(data_TMP, function(item){

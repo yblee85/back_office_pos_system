@@ -1,11 +1,3 @@
-function range_of_dates(start_date,end_date){
-    var dayCounter = start_date.clone();
-    var daysList = [dayCounter.clone()];
-    while(Date.compare(dayCounter.addDays(1),end_date) !== 1){
-	daysList.push(dayCounter.clone());
-    }
-    return daysList;
-}
 var sales_details_report_router =
     general_report_router.extend(
 	{
@@ -46,6 +38,14 @@ var sales_details_report_router =
 		callback(convert_to_array,'sales_details_report')
 	    },
 	    fetch_inventory_report:function(callback) {
+		function range_of_dates(start_date,end_date){
+		    var dayCounter = start_date.clone();
+		    var daysList = [dayCounter.clone()];
+		    while(Date.compare(dayCounter.addDays(1),end_date) !== 1){
+			daysList.push(dayCounter.clone());
+		    }
+		    return daysList;
+		}
 		function extractTableInfo(cashouts) {
 		    var entities = _(reportDataToArray(ReportData)).mapRenameKeys('number','storeNumber');
 		    var cashout_summaries = _.map(cashouts, function(cashout){
@@ -88,7 +88,7 @@ var sales_details_report_router =
 		var router = this;
 		var start_date = router.startDate;
 		var end_date = router.endDate;
-		var store_ids = stores_from_id(router.selected_entity,ReportData);
+		var store_ids = storeIDs_from_id(ReportData,router.selected_entity);
 		var daysList = range_of_dates(start_date,end_date);
 
 		async.map(daysList,
@@ -101,7 +101,7 @@ var sales_details_report_router =
 						    });
 			  },
 			  function(a,nested_cashouts){
-	      		      var cashouts = _(nested_cashouts).flatten();
+	      		      var cashouts = _.chain(nested_cashouts).flatten().sortBy(function(cashout){return cashout.date}).reverse().value();
 			      callback(extractTableInfo(cashouts));
 			  });
 	    }
@@ -109,7 +109,7 @@ var sales_details_report_router =
 
 new sales_details_report_router(
     {
-	route : new RegExp('menuReports/(company|group|store)ReportSalesDetail'),
+	route : new RegExp('reports/sales_details'),
 	report_table_template:'salesDetailtable_TMP',
 	template:"report_TMP",
 	title:'Sales Details Report'

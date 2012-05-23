@@ -1,9 +1,7 @@
 var menuInventoryscanTaxChangeRouter = 
     new (Backbone.Router.extend(
 	     {routes: {
-		  "menuInventory/companyReportscanTaxChange":"menuInventoryScanTaxChange",
-		  "menuInventory/groupReportscanTaxChange":"menuInventoryScanTaxChange",
-		  "menuInventory/storeReportscanTaxChange":"menuInventoryScanTaxChange"
+		  "inventory/scan_tax_change":"menuInventoryScanTaxChange"
 	      },
 	      getTopView:_.once(function(){return new menuInventoryscanTaxChangeView();}),
 	      menuInventoryScanTaxChange:function() {
@@ -30,9 +28,7 @@ var menuInventoryscanTaxChangeView =
 		}
 		
 		var html = 
-		    ich.menuInventoryScanItemTaxChanges_TMP(
-			_.extend({startPage:ReportData.startPage}, 
-				 autoBreadCrumb()));
+		    ich.menuInventoryScanItemTaxChanges_TMP(autoBreadCrumb());
 		
 		$(view.el).html(html);
 

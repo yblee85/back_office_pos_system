@@ -130,7 +130,7 @@ var inventory_sold_report_router =
 	});
 new inventory_sold_report_router(
     {
-	route : new RegExp('menuReports/(company|group|store)ReportInventory'),
+	route : new RegExp('inventory/inventory_sold'),
 	report_table_view:inventory_view,
 	template:"report_TMP",
 	title:'Inventory Sold Report'

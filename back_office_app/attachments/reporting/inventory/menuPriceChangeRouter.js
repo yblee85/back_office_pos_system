@@ -1,12 +1,9 @@
 var menuModelforInventory;
 
-var menuInventoryRouter = 
+var menuInventoryRouter =
     new (Backbone.Router.extend(
 	     {routes: {
-		  "menuInventory/companyReportInventory":"menuInventoryCompanyInventory",
-		  "menuInventory/companyReportmenuPriceChange":"menuInventoryCompanymenuPriceChange",
-		  "menuInventory/groupReportInventory":"menuInventoryGroupInventory",
-		  "menuInventory/storeReportInventory":"menuInventoryStoreInventory"
+		  "inventory/menu_price_change":"menuInventoryCompanymenuPriceChange"
 	      },
 	      menuInventoryCompanyInventory:function() {
 		  console.log("menuInventoryCompanyInventory");
@@ -23,34 +20,20 @@ var menuInventoryRouter =
 	     }));
 
 
-var menuInventoryView = 
+var menuInventoryView =
     Backbone.View.extend(
 	{initialize:function(){
 	     var view = this;
 	     view.el = $("#main");
-	     
-	     _.bindAll(view, 
+
+	     _.bindAll(view,
 		       'renderMenuInventoryCompanyInventory',
-		       'renderMenuInventoryGroupInventory',
-		       'renderMenuInventoryStoreInventory',
 		       'renderMenuInventoryCompanymenuPriceChange');
 	     menuInventoryRouter
-		 .bind('route:menuInventoryCompanyInventory', 
+		 .bind('route:menuInventoryCompanyInventory',
 		       function(){
 			   console.log("menuInventoryView, route:menuReportsCompanyInventory");
 			   view.renderMenuInventoryCompanyInventory();
-		       });
-	     menuInventoryRouter
-		 .bind('route:menuInventoryGroupInventory', 
-		       function(){
-			   console.log("menuInventoryView, route:menuReportsGroupInventory");
-			   view.renderMenuInventoryGroupInventory();
-		       });
-	     menuInventoryRouter
-		 .bind('route:menuInventoryStoreInventory',
-		       function(){
-			   console.log("menuInventoryView, route:menuReportsStoreInventory");
-			   view.renderMenuInventoryStoreInventory();
 		       });
 	     menuInventoryRouter
 		 .bind('route:menuInventoryCompanymenuPriceChange',
@@ -60,26 +43,8 @@ var menuInventoryView =
 		       });
 	 },
 	 renderMenuInventoryCompanyInventory: function() {
-	     
-	     var html = ich.menuInventory_TMP({startPage:"companyReport", 
-	     				       breadCrumb:breadCrumb(ReportData.company.companyName),
-	     				       showMenuPriceChange:true});
-	     $(this.el).html(html);
-	 },
-	 renderMenuInventoryGroupInventory: function() {
-	     
-	     var html = ich.menuInventory_TMP({startPage:"groupReport", 
-	 				       breadCrumb:breadCrumb(ReportData.companyName,
-	 					     		     ReportData.group.groupName)});
-	     $(this.el).html(html);
-	 },
-	 renderMenuInventoryStoreInventory: function() {
-	     
-	     var html = ich.menuInventory_TMP({startPage:"storeReport", 
-	 				       breadCrumb:breadCrumb(ReportData.companyName,
-	 					     		     ReportData.groupName,
-	 					     		     ReportData.store.storeName,
-	 					     		     ReportData.store.number)});
+	     var entity_level_is_company = (topLevelEntity(ReportData).type === 'company');
+	     var html = ich.menuInventory_TMP(_.extend(autoBreadCrumb(),{showMenuPriceChange:entity_level_is_company}));
 	     $(this.el).html(html);
 	 },
 	 renderMenuInventoryCompanymenuPriceChange: function() {
@@ -89,27 +54,27 @@ var menuInventoryView =
 	     	  if(!err) {
 	    	      console.log(menu);
 	    	      menuModelforInventory = menu;
-	    	      
-	    	      var html = ich.menuInventorymenuPriceChange_TMP({startPage:"companyReport", 
+
+	    	      var html = ich.menuInventorymenuPriceChange_TMP({
 	     							       breadCrumb:breadCrumb(ReportData.company.companyName)});
 		      $(view.el).html(html);
-		      
-		      
+
+
 		      var htmlleft = ich.menuSetMenus_Left_TMP({});
 		      $("#menusetmenusleft").html(htmlleft);
-		      
+
 		      $("#menumodifiersbutton").button()
 			  .click(function(){
 				     view.renderMenuScreenPartial(0);
 				     $("#menusetmenusright").html({});
 				 });
-		      
+
 		      view.renderMenuScreenPartial(1);
 		      view.renderMenuHeaderPartial();
-		      
+
 		      menuModelforInventory.bind("change:menuButtonHeaders",view.renderMenuHeaderPartial);
 		      menuModelforInventory.bind("change:menuButtons", view.renderMenuScreenPartial);
-		      
+
 		      console.log("rendered menus for inventory");
 		  } else {
 		      alert("Please, Create Menu first.");
@@ -120,20 +85,20 @@ var menuInventoryView =
 	 renderMenuHeaderPartial: function() {
 	     var view = this;
 	     var menuModelHeaders = menuModelforInventory.get('menuButtonHeaders');
-	     
+
 	     menuModelHeaders = _.map(menuModelHeaders, function(item) {
-					  if(_.isEmpty(item.description1) 
+					  if(_.isEmpty(item.description1)
 			  		     && _.isEmpty(item.description2)
 			  		     && _.isEmpty(item.description3)) {
 				  	      item.description2="MENU" + item.menu_id;
 					  }
 					  return item;
 				      });
-	     
-	     
+
+
 	     var htmlbottom = ich.menuSetMenus_Bottom_TMP({menuButtonHeaders:menuModelHeaders});
 	     $("#menusetmenusbottom").html(htmlbottom);
-	     
+
 	     _.each(menuModelHeaders, function(item){
 		  	$("#menubuttonheader"+item.menu_id).button()
 			    .click(function(){
@@ -146,7 +111,7 @@ var menuInventoryView =
 	     if(_.isNumber(model)){
 	 	 console.log("screen num : " + model);
 	 	 var menuscreentitle;
-	 	 
+
 	 	 if(model==0) {
 	 	     menuscreentitle = "MODIFIERS";
 	 	 } else {
@@ -166,14 +131,14 @@ var menuInventoryView =
 		 		       var btn = $('#'+rowitem.display.screen+"\\:"+rowitem.display.position)
 		 			   .click(function(){
 			    			      renderEditMenuPrice(rowitem.display.screen, rowitem.display.position);
-				   		  });	
-		 		   });	
+				   		  });
+		 		   });
 			});
-		 
+
 		 console.log("menuscreen rendered");
 	     } else if(!_.isEmpty(item)) {
 		 console.log("screen num : " + item.display.screen);
-		 
+
 		 var menuscreentitle;
 		 if(item.display.screen==0) {
 	 	     menuscreentitle = "MODIFIERS";
@@ -186,17 +151,17 @@ var menuInventoryView =
 	 	    	 .concat(header.description3);
 	 	 }
 
-		 var menuScreen = menuModelforInventory.menu_screen(item.display.screen);	 	 
+		 var menuScreen = menuModelforInventory.menu_screen(item.display.screen);
 		 var htmlcenter = ich.menuSetMenus_Center_TMP(_.extend({menuscreentitle:menuscreentitle},menuScreen));
 		 $("#menusetmenuscenter").html(htmlcenter);
-		 
+
 		 _.each(menuScreen.menu_screen, function(item){
 		 	    _.each(item.row, function(rowitem) {
 		 		       var btn = $('#'+rowitem.display.screen+"\\:"+rowitem.display.position)
 		 			   .click(function(){
 			    			      renderEditMenuPrice(rowitem.display.screen, rowitem.display.position);
-				   		  });	
-		 		   });	
+				   		  });
+		 		   });
 			});
 		 console.log("menuscreen rendered");
 	     }
@@ -205,33 +170,30 @@ var menuInventoryView =
 
 /*********************************************** helper functions *********************************************/
 function renderEditMenuPrice(num,position) {
-    if(_.isNumber(position)) {
+    if(_.isNumber(position)) { //FIXME: wtf does this mean?
 	var button = menuModelforInventory.get_button(num,position);
-	
+
 	var htmlright = ich.menuSetMenus_Right_TMP(button);
 	$("#menusetmenusright").html(htmlright);
 
 	$('input:checkbox').parent().hide();
-	$('#displayColor').parent().parent().hide();
-	
+	$('#color-selection-area').hide();
+
 	var txtLine1 = $("#editmenudescription0");
 	var txtLine2 = $("#editmenudescription1");
 	var txtLine3 = $("#editmenudescription2");
 	var txtPrice = $("#editmenuprice");
-	
+
 	txtLine1.attr('disabled',true);
 	txtLine2.attr('disabled',true);
 	txtLine3.attr('disabled',true);
 	txtPrice.val("");
-	
+
 	var btn = $("#btnMenuSave")
 	    .click(function(){
 		       console.log("menuInventory Price Change");
 		       save_button_into_db();
 		   });
-	
-    } else {
-	//renderEditHeader ???
     }
 };
 
@@ -249,7 +211,7 @@ function save_button_into_db() {
 	var db = cdb.db("menu_buttons");
 	var view = cdb.view("menubuttons","id");
 	var keyQ = _async.generalKeyQuery(view,db);
-	
+
 	async.waterfall(
 	    [keyQ(company_id),
 	     function(company_response,callback){
@@ -266,7 +228,7 @@ function save_button_into_db() {
 				       model.set_buttons(sparseStoreMenu);
 				       model.save();
 				       callback();
-				   }, 
+				   },
 				   error:function(model,response){
 				       currentStoreMenu.set_empty_menu().set_buttons(sparseStoreMenu);
 				       currentStoreMenu.save();
@@ -275,7 +237,7 @@ function save_button_into_db() {
 			  });},
 		     function(err){console.log("finsihed updating the menus");});
 	     }]);
-	
+
     }
     function constructMenu_keyValue(couchDB_responses){
 	return _(couchDB_responses).chain()
@@ -287,7 +249,7 @@ function save_button_into_db() {
 			     item.menuButton.display.position;
 		     })
 	    .map(function(buttonChangeLog,location){
-		     var mostRecentMenuButton = 
+		     var mostRecentMenuButton =
 			 _(buttonChangeLog).chain()
 			 .sortBy(function(item){return item.date;})
 			 .last()
@@ -302,8 +264,8 @@ function save_button_into_db() {
 	    async.forEach
 	    (ids,
 	     function(id,callback){
-   		 var button = new MenuButton({menuButton:newButtonItemData, 
-					      date: (new Date()).toString(), 
+   		 var button = new MenuButton({menuButton:newButtonItemData,
+					      date: (new Date()).toString(),
 					      id:id});
 		 button.save({},{success:function(){
 				     callback();
@@ -317,15 +279,15 @@ function save_button_into_db() {
 		 }
 		 rebuildMenus(company_id, allStore_ids);
 	     });
-	    
+
 	};
     }
     var stores = extractStores(ReportData);
     var html = ich.menuInventoryApplyStoresQuickViewDialog_TMP({items:stores});
-    menuInventoryApplyStoresViewDialog(html,{title:"Apply Price - new Price : $ " + 
-					     currency_format(newButtonItemData.foodItem.price), 
+    menuInventoryApplyStoresViewDialog(html,{title:"Apply Price - new Price : $ " +
+					     currency_format(newButtonItemData.foodItem.price),
 					     stores:stores,
 					     makeButtons:makeButtons(newButtonItemData,companyID,allStoreIDs)
 					    });
-    
+
 };

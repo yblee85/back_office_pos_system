@@ -1,9 +1,7 @@
 var menuInventoryscanPriceChangeRouter = 
     new (Backbone.Router.extend(
 	     {routes: {
-		  "menuInventory/companyReportscanPriceChange":"menuInventoryScanPriceChange",
-		  "menuInventory/groupReportscanPriceChange":"menuInventoryScanPriceChange",
-		  "menuInventory/storeReportscanPriceChange":"menuInventoryScanPriceChange"
+		  "inventory/scan_price_change":"menuInventoryScanPriceChange"
 	      },
 	      getTopView:_.once(function(){return new menuInventoryscanPriceChangeView();}),
 	      menuInventoryScanPriceChange:function() {
@@ -30,9 +28,7 @@ var menuInventoryscanPriceChangeView =
 		}
 		
 		var html = 
-		    ich.menuInventoryScanItemPriceChanges_TMP(
-			_.extend({startPage:ReportData.startPage}, 
-	     			 autoBreadCrumb()));
+		    ich.menuInventoryScanItemPriceChanges_TMP(autoBreadCrumb());
 		
 		$(view.el).html(html);
 

@@ -53,7 +53,7 @@ var sales_summary_report_router =
 		var router = this
 		var start_date = router.startDate
 		var end_date = router.endDate
-		var store_ids = stores_from_id(router.selected_entity,ReportData)
+		var store_ids = storeIDs_from_id(ReportData,router.selected_entity)
 		cashoutFetcher_Period(store_ids,start_date,end_date,
 				      function(err,response){
 	      				  var template_data = extractSalesSummaryTableInfo(response);
@@ -64,7 +64,7 @@ var sales_summary_report_router =
 
 new sales_summary_report_router(
     {
-	route : new RegExp('menuReports/(company|group|store)ReportSalesSummary'),
+	route : new RegExp('reports/sales_summary'),
 	report_table_template:'salesSummarytable_TMP',
 	template:"report_TMP",
 	title:'Sales Summary Report'

@@ -1,6 +1,6 @@
 var inv_helpers =
     {renderChangesLog : function(view,mainTMP,tableTMP,fetcher){
-	 var html = ich[mainTMP](_.extend({startPage:ReportData.startPage},autoBreadCrumb()));
+	 var html = ich[mainTMP](autoBreadCrumb());
 	 $(view.el).html(html);
 	 var id = topLevelEntity(ReportData).id;
 	 fetcher(id)
@@ -59,7 +59,7 @@ var inv_helpers =
 
 		 var locationsToReportTo = _.chain([origins,locationsToSaveTo])
 		     .flatten()
-		     .pluck('id')
+		     .pluck('id').compact()
 		     .concat(group_ids_to_save_to)
 		     .unique()
 		     .matchTo(entitys,'id')

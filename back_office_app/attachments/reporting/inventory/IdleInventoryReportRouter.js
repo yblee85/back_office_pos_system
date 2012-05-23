@@ -1,13 +1,13 @@
 var idleInventoryRouter = 
     new (Backbone.Router.extend({
 				    routes: {
-					"menuInventory/IdleInventory":"idleInventory"
+					"inventory/idle_inventory":"idleInventory"
 				    },
 				    idleInventory:function() {
 					this._setup();
 				    },
 				    _setup:function() {
-					var html = ich.idleInventoryReports_TMP(_.extend({startPage:ReportData.startPage},autoBreadCrumb()));
+					var html = ich.idleInventoryReports_TMP(autoBreadCrumb());
 					$("#main").html(html);
 					
 					resetDropdownBox(ReportData, false, false);

@@ -1,13 +1,13 @@
 var inventoryStockManagementRouter = 
     new (Backbone.Router.extend({
 				    routes: {
-					"menuInventory/InventoryStockMng":"inventoryStockMng"
+					"inventory/stock_management":"inventoryStockMng"
 				    },
 				    inventoryStockMng:function() {
 					this._setup();
 				    },
 				    _setup:function() {
-					var html = ich.inventoryStockMngReports_TMP(_.extend({startPage:ReportData.startPage},autoBreadCrumb()));
+					var html = ich.inventoryStockMngReports_TMP(autoBreadCrumb());
 					$("#main").html(html);
 					
 					resetDropdownBox(ReportData, false, false);
